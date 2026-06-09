@@ -10,6 +10,7 @@ import com.jira.domain.model.StatusCategory;
 import com.jira.domain.service.WorkflowEngine;
 import com.jira.infrastructure.persistence.entity.*;
 import com.jira.infrastructure.persistence.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
@@ -46,6 +47,7 @@ public class IssueService {
     private final UserJpaRepository        userRepo;
     private final SprintJpaRepository      sprintRepo;
     private final ApplicationEventPublisher eventPublisher;
+    private final EntityManager            entityManager;
 
     // ─────────────────────────────────────────────
     // COMMAND: Create Issue
@@ -197,12 +199,13 @@ public class IssueService {
                 .orElseThrow(() -> new EntityNotFoundException("Issue not found: " + issueKey)));
     }
 
-    // ─────────────────────────────────────────────
-    // Deterministic issue key generation: PROJECT-N
-    // Uses count of existing issues for sequential numbering
-    // ─────────────────────────────────────────────
+    // Atomically increments per-project issue counter using UPDATE...RETURNING.
+    // Safe under concurrent inserts — no TOCTOU race unlike COUNT(*)+1.
     private String generateIssueKey(String projectKey, UUID projectId) {
-        long count = issueRepo.countByProjectId(projectId);
-        return projectKey + "-" + (count + 1);
+        Number n = (Number) entityManager
+                .createNativeQuery("UPDATE projects SET next_issue_number = next_issue_number + 1 WHERE id = :id RETURNING next_issue_number")
+                .setParameter("id", projectId)
+                .getSingleResult();
+        return projectKey + "-" + n.intValue();
     }
 }

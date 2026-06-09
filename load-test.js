@@ -2,6 +2,7 @@ import http from 'k6/http';
 import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
+import encoding from 'k6/encoding';
 
 // ─────────────────────────────────────────────────────────
 // k6 Load Test: 100 concurrent board viewers + issue mutations
@@ -49,7 +50,7 @@ export const options = {
 
 const AUTH_HEADERS = {
     'Content-Type': 'application/json',
-    'Authorization': 'Basic ' + btoa('admin:admin123'),
+    'Authorization': 'Basic ' + encoding.b64encode('admin:admin123'),
 };
 
 // Scenario 1: Keep a WebSocket connection open, receive live board updates
