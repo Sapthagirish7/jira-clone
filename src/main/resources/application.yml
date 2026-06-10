@@ -3,9 +3,9 @@ spring:
     name: jira-clone
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/jiradb
-    username: jira
-    password: jira_secret
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jiradb}
+    username: ${SPRING_DATASOURCE_USERNAME:jira}
+    password: ${SPRING_DATASOURCE_PASSWORD:jira_secret}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -28,8 +28,7 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      url: ${REDIS_URL:redis://localhost:6379}
       timeout: 2000ms
       lettuce:
         pool:
@@ -40,6 +39,9 @@ spring:
     user:
       name: admin
       password: admin123
+
+server:
+  port: ${PORT:8080}
 
 # Actuator endpoints
 management:
