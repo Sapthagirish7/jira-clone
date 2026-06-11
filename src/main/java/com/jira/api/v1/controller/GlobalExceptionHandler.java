@@ -16,10 +16,8 @@ import java.net.URI;
 /**
  * Centralised error handling following RFC 9457 (Problem Details for HTTP APIs).
  *
- * INTERVIEW TALKING POINT — typed error hierarchy:
- * Every error type maps to a specific HTTP status and a machine-readable type URI.
- * Clients can switch on "type" rather than parsing message strings.
- * correlationId links the error response back to server logs.
+ * Each exception type maps to a specific HTTP status and a machine-readable type URI.
+ * A correlationId links every error response back to the corresponding server log entry.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

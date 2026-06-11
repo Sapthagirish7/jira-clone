@@ -20,20 +20,12 @@ import java.util.stream.Collectors;
 /**
  * BoardCacheService wraps the board read query with Redis cache-aside.
  *
- * INTERVIEW TALKING POINT — Cache-aside pattern:
- * 1. On cache miss: query PostgreSQL, store result in Redis with a TTL.
- * 2. On cache hit: return from Redis directly — no DB query.
- * 3. On any write (issue created/updated/transitioned): evict the cache for
- *    that project so the next board read gets fresh data.
+ * On cache miss: queries PostgreSQL and stores the result in Redis with a TTL.
+ * On cache hit: returns from Redis directly with no DB query.
+ * On any write: evicts the cache for that project so the next read gets fresh data.
  *
- * Why not write-through? Because board state is an aggregate of many rows.
- * Reconstructing it on every write is expensive; invalidating and lazily
- * reloading on next read is cheaper for read-heavy boards.
- *
- * INTERVIEW TALKING POINT — TTL:
- * Set to 5 minutes in RedisConfig. A stale board for up to 5 minutes is
- * acceptable for most team views. Real-time updates come via WebSocket anyway;
- * the cache is for users who open a board after an idle period.
+ * TTL is set to 5 minutes in RedisConfig. Real-time accuracy for connected clients
+ * is provided by WebSocket broadcasts regardless of cache state.
  */
 @Service
 @RequiredArgsConstructor

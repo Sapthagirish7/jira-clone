@@ -14,18 +14,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * NotificationDispatcher dispatches notifications to watchers when issues change status.
+ * NotificationDispatcher writes notifications to watchers when issues change status.
  *
- * INTERVIEW TALKING POINT — Circuit Breaker (Scenario 4 in the assignment):
- * The @CircuitBreaker annotation wraps the notification write/send.
- * If the underlying operation fails 5+ times (e.g., notification microservice is down),
- * the circuit opens and fallbackDispatch is called instead.
- * Fallback: log the failure and return. Board operations still succeed.
- * In production you'd push to a queue (SQS/Kafka) in the fallback so notifications
- * are delivered when the service recovers — that's the "queued and delivered later" behaviour.
- *
- * For this prototype, notifications are written to the DB notifications table.
- * The circuit breaker protects the DB write (simulating an external call).
+ * Wrapped with a Resilience4j circuit breaker so notification failures do not
+ * affect the main issue mutation path. If the circuit opens, the fallback logs
+ * the dropped notification — in production this would push to a queue (SQS/Kafka)
+ * for delivery once the service recovers.
  */
 @Component
 @RequiredArgsConstructor

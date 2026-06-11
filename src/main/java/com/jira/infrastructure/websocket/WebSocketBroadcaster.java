@@ -12,21 +12,14 @@ import java.util.Map;
 
 /**
  * WebSocketBroadcaster listens to domain events and pushes them to connected
- * STOMP clients via topic channels.
+ * STOMP clients via per-project topic channels.
  *
- * INTERVIEW TALKING POINT — STOMP topics:
- * Clients subscribe to /topic/projects/{projectId}/board.
- * When any issue in that project changes, all subscribers get the event immediately.
- * This is the "board state change" broadcast the assignment requires.
+ * Clients subscribe to /topic/projects/{projectId}/board and receive live updates
+ * when any issue in that project changes. Topic-per-project ensures fan-out only
+ * reaches viewers of the affected project.
  *
- * Topic per project means we only fan out to viewers of the affected project —
- * not every connected client. This is important for scale.
- *
- * INTERVIEW TALKING POINT — Missed event replay:
- * If a client disconnects and reconnects, they call GET /api/v1/projects/{id}/board
- * to get the full current state. WebSocket delivers only incremental deltas from
- * that point forward. For more sophisticated replay we'd store events in Redis
- * Streams and let clients pass a lastSeenEventId.
+ * On reconnect, clients fetch the full board state via GET /api/v1/projects/{id}/board
+ * and then resume receiving incremental WebSocket updates from that point.
  */
 @Component
 @RequiredArgsConstructor

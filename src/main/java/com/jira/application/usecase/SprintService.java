@@ -17,26 +17,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * SprintService manages sprint lifecycle.
+ * SprintService manages sprint lifecycle: create, start, complete.
  *
- * INTERVIEW TALKING POINT — Advisory Locks:
- * "Only one sprint can be ACTIVE per project at a time" is a business invariant.
- * Checking this in application code is NOT sufficient — two concurrent requests
- * could both pass the check before either commits.
+ * Enforces the invariant that only one sprint can be ACTIVE per project at a time.
+ * A PostgreSQL advisory lock (pg_try_advisory_xact_lock) serialises concurrent
+ * start/complete requests per project — application-level checks alone are not
+ * sufficient under concurrent requests.
  *
- * Solution: PostgreSQL pg_try_advisory_xact_lock(lockKey).
- * - The lockKey is derived from the projectId (converted to a long).
- * - The lock is held for the duration of the transaction and released on commit/rollback.
- * - If another request holds the lock, pg_try_advisory_xact_lock returns false immediately
- *   (non-blocking) rather than blocking indefinitely — we fail fast with 409.
- *
- * This is different from row-level locking (SELECT FOR UPDATE) because there is no
- * existing "active sprint" row to lock when starting the first sprint.
- *
- * INTERVIEW TALKING POINT — Sprint completion carry-over:
- * On completion we sum story_points of DONE issues → velocity.
- * Incomplete issues can be selectively moved to a target sprint or left in backlog (sprint_id = NULL).
- * The audit trail records this as a sprint-level event.
+ * On sprint completion, incomplete issues are optionally moved to a target sprint
+ * or returned to the backlog (sprint_id = NULL). Story points of DONE issues
+ * are summed to calculate velocity.
  */
 @Service
 @RequiredArgsConstructor

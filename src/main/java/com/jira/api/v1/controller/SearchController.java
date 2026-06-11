@@ -23,17 +23,8 @@ public class SearchController {
     private final ActivityLogJpaRepository activityRepo;
 
     /**
-     * Full-text search using PostgreSQL tsvector.
-     * Also supports structured filters via additionalJql-style query params.
-     *
-     * INTERVIEW TALKING POINT:
-     * We use PostgreSQL's built-in tsvector + GIN index for full-text search.
-     * This is sufficient for the prototype. At scale we'd push to Elasticsearch
-     * and sync via CDC (Change Data Capture) from the DB.
-     *
-     * Cursor-based pagination: we use page+size here for simplicity, but in
-     * production cursor pagination (createdAt < :cursor) is preferred because
-     * OFFSET scans degrade at large page numbers.
+     * Full-text search using PostgreSQL tsvector + GIN index.
+     * Results are ranked by ts_rank. Supports offset-based pagination.
      */
     @GetMapping("/search")
     @Operation(summary = "Full-text search across issues within a project")

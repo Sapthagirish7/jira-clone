@@ -11,15 +11,10 @@ import java.util.UUID;
 /**
  * WorkflowEngine enforces the configured transition graph for each project.
  *
- * INTERVIEW TALKING POINT — State Machine pattern:
- * Each project has a directed graph of statuses and allowed transitions.
- * "To Do -> In Progress -> In Review -> Done" is one valid path.
- * Jumping directly from "To Do" to "Done" is blocked unless that transition
- * exists in workflow_transitions. This is the State Machine pattern applied
- * to a configurable, data-driven workflow instead of hard-coded states.
- *
- * This service is the single place in the system that knows transition rules.
- * IssueService calls it; it returns either the valid transition or throws.
+ * Each project defines a directed graph of statuses and allowed transitions stored
+ * in the workflow_transitions table. This service validates that a requested
+ * status change follows an allowed edge in that graph, throwing
+ * WorkflowViolationException if the transition is not permitted.
  */
 @Service
 @RequiredArgsConstructor

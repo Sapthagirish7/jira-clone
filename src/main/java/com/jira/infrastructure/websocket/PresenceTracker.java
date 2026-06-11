@@ -11,13 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * PresenceTracker keeps in-memory state of which users are viewing which boards.
+ * PresenceTracker maintains in-memory state of which sessions are viewing which boards.
  *
- * INTERVIEW TALKING POINT:
- * Presence is stateful and lives on the app node. In a multi-node deployment,
- * this would need to move to Redis (pub/sub + sorted set per projectId:viewers).
- * For the prototype, in-memory is fine and this class clearly documents the
- * horizontal scaling gap in the ADR.
+ * In a multi-node deployment this would need to move to a shared store (e.g. Redis
+ * pub/sub + sorted set per projectId) since in-memory state is node-local.
  */
 @Component
 @Slf4j

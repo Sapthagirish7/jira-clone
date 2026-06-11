@@ -21,20 +21,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * IssueService is the application use-case service for everything issue-related.
+ * Application use-case service for issue operations.
  *
- * INTERVIEW TALKING POINT — CQRS:
- * This class is the COMMAND side. It handles writes (create, update, transition).
- * The board GET is the QUERY side — it uses a dedicated read-optimised query
- * (JOIN FETCH avoids N+1) and returns a denormalised BoardResponse DTO.
- * In a larger system the read side could be a separate read model (materialised view
- * or a separate read service), but for this prototype both live in one service.
+ * Follows CQRS: write operations (create, update, transition) are handled here.
+ * Board reads use a dedicated read-optimised query with JOIN FETCH to avoid N+1.
  *
- * INTERVIEW TALKING POINT — Domain Events:
- * After every mutation we publish a domain event via Spring's ApplicationEventPublisher.
+ * After every mutation a domain event is published via ApplicationEventPublisher.
  * This decouples IssueService from ActivityLogService, WebSocketBroadcaster, and
- * NotificationService. Each of those listens independently. If notifications are down,
- * the issue save still succeeds — the notification listener's circuit breaker absorbs the failure.
+ * NotificationService — each listens independently via @EventListener.
  */
 @Service
 @RequiredArgsConstructor

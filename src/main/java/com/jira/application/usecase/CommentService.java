@@ -22,11 +22,10 @@ import java.util.regex.Pattern;
 /**
  * CommentService handles threaded comments and @mention parsing.
  *
- * INTERVIEW TALKING POINT — @mention detection:
- * We parse @username from the comment body with a regex, look each up in the DB,
- * and store them in comment_mentions for notification fan-out.
- * The CommentAddedEvent carries the commentId; a separate NotificationListener
- * reads the mentions table and creates notification rows for each mentioned user.
+ * Parses @username tokens from the comment body, resolves them to user records,
+ * and stores them in comment_mentions for notification fan-out.
+ * A CommentAddedEvent is published after each comment so downstream listeners
+ * can notify mentioned users asynchronously.
  */
 @Service
 @RequiredArgsConstructor

@@ -13,14 +13,11 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * Listens to domain events and writes immutable rows to activity_log.
+ * Listens to domain events and writes immutable rows to the activity_log table.
  *
- * INTERVIEW TALKING POINT — Why @EventListener instead of direct calls?
- * IssueService doesn't import ActivityLogService. This means:
- * 1. No circular dependencies.
- * 2. Adding a new side effect (e.g. Slack notification) = add a new @EventListener.
- *    Zero changes to IssueService.
- * 3. Can be made async (@Async) so the activity write doesn't block the HTTP response.
+ * Decoupled from IssueService via Spring's event mechanism — IssueService has
+ * no import of this class. New side effects can be added by creating additional
+ * @EventListener components without modifying existing services.
  */
 @Component
 @RequiredArgsConstructor
