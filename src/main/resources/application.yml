@@ -67,6 +67,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
+  servers:
+    - url: ${APP_URL:http://localhost:8080}
+      description: Current environment
 
 # Resilience4j circuit breaker for notification service
 resilience4j:
